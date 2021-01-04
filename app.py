@@ -1,16 +1,6 @@
 # app.py
-import os
-
-from werkzeug.utils import secure_filename
-from flask import (
-    Flask,
-    jsonify,
-    send_from_directory,
-    request,
-    redirect,
-    url_for,
-    render_template
-)
+from flask import Flask, request, jsonify
+app = Flask(__name__)
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
