@@ -10,7 +10,7 @@ from flask import (
     render_template
 )
 from flask_sqlalchemy import SQLAlchemy
-from face_verify import face_verify 
+from face_verify import (register, verify)
 app = Flask(__name__)
 app.config.from_object("config.Config")
 db = SQLAlchemy(app)
@@ -47,10 +47,13 @@ def users():
     return jsonify(json_list=[i.serialize for i in User.query.all()])
 
 @app.route('/register', methods=['GET', 'POST'])
-def register():
+def registerFace():
     if request.method == 'POST':
         try:
-            face_as_list = face_verify.register(request.form.get('face'))
+            user = User.query.filter(User.username == request.form.get('name')).first()
+            if user:
+                return render_template('register.html', error = "User already exist.")
+            face_as_list = register(request.form.get('face'))
             user = User(request.form.get('name'), face_as_list)
             db.session.add(user)
             db.session.commit()
@@ -65,8 +68,10 @@ def login():
         user = User.query.filter(User.username == request.form.get('name')).first()
         if user:
             try:
-                login = face_verify.verify(request.form.get('face'), [user.face])
-            except:
+                print("login")
+                login = verify(request.form.get('face'), [user.face])
+            except Exception as e:
+                print(e)
                 return render_template('login.html', errorMessage = "Something goes wrong. Try again.")
             if login:
                 return render_template('login.html', successMessage = "Login successfully")
@@ -80,5 +85,4 @@ def login():
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
     app.run(threaded=True, port=5000)
-    
     
