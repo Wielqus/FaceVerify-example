@@ -1,0 +1,84 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>FaceVerify example</title>
+  <meta name="description" content="Example of Face Verify Library">
+  <meta name="author" content="Jakub Wielgus">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+</head>
+
+<body class="d-flex bg-light vh-100 align-items-center">
+    <main class="container justify-content-center align-items-center">
+      <div class="row ">
+        <div class="col-sm hidden-md hidden-sm hidden-xs">
+        </div>
+        <div class="col-lg-4">
+          <form method="POST">
+            <section id="first-section" class="card p-5 shadow p-3 mb-5 bg-white rounded" >
+              <div class="card-body justify-content-center">
+                <h2 class="text-center mb-2">Register your face</h2>
+                <h4 class="text-center">Start with your name</h4>
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                  {{ error }}
+                </div>
+                {% endif %}
+                <div class="justify-content-center mt-5">
+                  <div class="form-group">
+                    <input id="name-input" name="name" id="name" class="form-control"  placeholder="Name">
+                  </div>
+                  <button id="next-button" type="button" class="btn btn-primary mt-3 w-100">Next</button>
+                </div>
+              </div>
+            </section>
+            <section id="second-section" class="card p-5 shadow p-3 mb-5 bg-white rounded" style="display:none;" >
+              <div class="card-body justify-content-center">
+                <h2 class="text-center mb-2">Register your face</h2>
+                <h4 class="text-center">Now, let me get your face</h4>
+                <p>Look at the camera and smile</p>
+                <div id="success-alert" class="alert alert-success mb-0 mt-3" role="alert" style="display:none;">
+                  Your face has been saved
+                </div>
+                <div class="justify-content-center mt-4">
+                  <div id="face-container" ></div>
+                  <input type="hidden" name="face" id="face" />
+                  <button disabled id="registerButton" class="btn btn-primary mt-3 w-100">Register</button>
+                </div>
+              </div>
+            </section>
+          </form>
+        </div>
+        <div class="col-sm hidden-md hidden-sm hidden-xs">
+        </div>
+      </div>
+    </main>
+    <script src="/static/index.js"></script>
+    <script>
+        const container = document.querySelector('#face-container')
+        const faceInput = document.querySelector('#face')
+        const nextButton = document.querySelector("#next-button")
+        const firstSection = document.querySelector("#first-section")
+        const secondSection = document.querySelector("#second-section")
+        const successAlert = document.querySelector("#success-alert")
+        const nameInput = document.querySelector("#name-input")
+        const registerButton = document.querySelector("#registerButton")
+        nextButton.addEventListener('click', () => {
+          if(nameInput.value !== ""){
+            firstSection.style.display = "none"
+            secondSection.style.display = "flex"
+            FaceVerify.FaceVerify.init(container, {}, (face) => {
+                container.style.display = "none"
+                successAlert.style.display = "block"
+                faceInput.value = face
+                registerButton.disabled = false
+            })
+          }
+        })
+    </script>
+</body>
+</html>

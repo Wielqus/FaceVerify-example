@@ -1,0 +1,72 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>FaceVerify example</title>
+  <meta name="description" content="Example of Face Verify Library">
+  <meta name="author" content="Jakub Wielgus">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+</head>
+
+<body class="d-flex bg-light vh-100 align-items-center">
+  <main class="container justify-content-center align-items-center">
+    <div class="row ">
+      <div class="col-sm hidden-md hidden-sm hidden-xs">
+      </div>
+      <div class="col-md-8 justify-content-center align-items-center">
+        <section class="m-2 p-4">
+          <h1>FaceVerify</h1>
+        <h3>This is example of implementation FaceVerify library.
+          Start with register your face, next try to login.</h3>
+        </section>
+        
+        <div class="row">
+          <div class="col-lg m-2">
+            <section class="card p-5 shadow bg-white rounded" >
+              <h2>Register your face</h2>
+              <p>Register your face to our system.</p>
+              <a href="/register" class="btn btn-primary mt-3 w-100">Register</a>
+            </section>
+          </div>
+          <div class="col-lg m-2">
+            <section class="card p-5 shadow bg-white rounded" >
+              <h2>Login with your face</h2>
+              <p>Try to login with your face</p>
+              <a href="login" class="btn btn-primary mt-3 w-100">Login</a>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm hidden-md hidden-sm hidden-xs">
+      </div>
+    </div>
+  </main>
+    <script src="/static/index.js"></script>
+    <script>
+      const container = document.querySelector('#face-container')
+      const faceInput = document.querySelector('#face')
+      const nextButton = document.querySelector("#next-button")
+      const firstSection = document.querySelector("#first-section")
+      const secondSection = document.querySelector("#second-section")
+      const successAlert = document.querySelector("#success-alert")
+      const nameInput = document.querySelector("#name-input")
+      const loginButton = document.querySelector("#loginButton")
+      nextButton.addEventListener('click', () => {
+        if(nameInput.value !== ""){
+          firstSection.style.display = "none"
+          secondSection.style.display = "flex"
+          FaceVerify.FaceVerify.init(container, {}, (face) => {
+              container.style.display = "none"
+              successAlert.style.display = "block"
+              faceInput.value = face
+              loginButton.disabled = false
+          })
+        }
+      })
+  </script>
+</body>
+</html>
