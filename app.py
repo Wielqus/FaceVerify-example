@@ -1,51 +1,87 @@
-# app.py
-from flask import Flask, request, jsonify
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import os
+
+from werkzeug.utils import secure_filename
+from flask import (
+    Flask,
+    jsonify,
+    send_from_directory,
+    request,
+    redirect,
+    url_for,
+    render_template
+)
+from flask_sqlalchemy import SQLAlchemy
+from face_verify import face_verify
 app = Flask(__name__)
+app.config.from_object("config.Config")
+db = SQLAlchemy(app)
 
-@app.route('/getmsg/', methods=['GET'])
-def respond():
-    # Retrieve the name from url parameter
-    name = request.args.get("name", None)
+DEVELOPMENT_ENV  = True
 
-    # For debugging
-    print(f"got name {name}")
+class User(db.Model):
+    __tablename__ = "users"
 
-    response = {}
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(128), unique=True, nullable=False)
+    face = db.Column(db.Text(), unique=True, nullable=False)
 
-    # Check if user sent a name at all
-    if not name:
-        response["ERROR"] = "no name found, please send a name."
-    # Check if the user entered a number not a name
-    elif str(name).isdigit():
-        response["ERROR"] = "name can't be numeric."
-    # Now the user entered a valid name
-    else:
-        response["MESSAGE"] = f"Welcome {name} to our awesome platform!!"
+    def __init__(self, username, face):
+        self.username = username
+        self.face = face
 
-    # Return the response in json format
-    return jsonify(response)
+    @property
+    def serialize(self):
+       return {
+           'id' : self.id,
+           'username' : self.username,
+           "face" : self.face
+       }
 
-@app.route('/post/', methods=['POST'])
-def post_something():
-    param = request.form.get('name')
-    print(param)
-    # You can add the test cases you made in the previous function, but in our case here you are just testing the POST functionality
-    if param:
-        return jsonify({
-            "Message": f"Welcome {name} to our awesome platform!!",
-            # Add this option to distinct the POST request
-            "METHOD" : "POST"
-        })
-    else:
-        return jsonify({
-            "ERROR": "no name found, please send a name."
-        })
 
-# A welcome message to test our server
-@app.route('/')
+@app.route("/")
 def index():
-    return "<h1>Welcome to our server !!</h1>"
+    return render_template('index.html')
+
+@app.route("/users")
+def users():
+    return jsonify(json_list=[i.serialize for i in User.query.all()])
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        try:
+            face_as_list = face_verify.register(request.form.get('face'))
+            user = User(request.form.get('name'), face_as_list)
+            db.session.add(user)
+            db.session.commit()
+            return redirect(url_for('login'))
+        except Exception as e:
+            print(e)
+            return render_template('register.html', error = "Something goes wrong. Try again.")
+    return render_template('register.html')
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user = User.query.filter(User.username == request.form.get('name')).first()
+        if user:
+            try:
+                login = face_verify.verify(request.form.get('face'), [user.face])
+            except:
+                return render_template('login.html', errorMessage = "Something goes wrong. Try again.")
+            if login:
+                return render_template('login.html', successMessage = "Login successfully")
+            else:
+                return render_template('login.html', errorMessage = "Authorization failed")
+        else:
+            return render_template('login.html', errorMessage = "User with this name not found")
+        return render_template('login.html')
+    return render_template('login.html')    
 
 if __name__ == '__main__':
-    # Threaded option to enable multiple instances for multiple user access support
-    app.run(threaded=True, port=5000)
+    db.drop_all()
+    db.create_all()
+    db.session.commit()
+    app.run(debug=DEVELOPMENT_ENV)
