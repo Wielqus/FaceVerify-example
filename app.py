@@ -15,6 +15,29 @@ app = Flask(__name__)
 app.config.from_object("config.Config")
 db = SQLAlchemy(app)
 
+class User(db.Model):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(128), unique=True, nullable=False)
+    face = db.Column(db.Text(), unique=True, nullable=False)
+
+    def __init__(self, username, face):
+        self.username = username
+        self.face = face
+
+    @property
+    def serialize(self):
+       return {
+           'id' : self.id,
+           'username' : self.username,
+           "face" : self.face
+       }
+
+@app.route("/")
+def index():
+    return render_template('index.html')
+
 @app.route('/getmsg/', methods=['GET'])
 def respond():
     # Retrieve the name from url parameter
@@ -53,11 +76,6 @@ def post_something():
         return jsonify({
             "ERROR": "no name found, please send a name."
         })
-
-# A welcome message to test our server
-@app.route('/')
-def index():
-    return "<h1>Welcome to our server !!</h1>"
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
