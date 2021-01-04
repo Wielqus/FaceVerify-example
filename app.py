@@ -11,10 +11,19 @@ from flask import (
 )
 from flask_sqlalchemy import SQLAlchemy
 from face_verify import (register, verify)
-app = Flask(__name__)
+
+class MyFlaskApp(Flask):
+  def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
+    if not self.debug or os.getenv('WERKZEUG_RUN_MAIN') == 'true':
+      with self.app_context():
+        db.drop_all()
+        db.create_all()
+        db.session.commit()
+    super(MyFlaskApp, self).run(host=host, port=port, debug=debug, load_dotenv=load_dotenv, **options)
+
+app = MyFlaskApp(__name__)
 app.config.from_object("config.Config")
 db = SQLAlchemy(app)
-
 
 class User(db.Model):
     __tablename__ = "users"
@@ -34,9 +43,7 @@ class User(db.Model):
            'username' : self.username,
            "face" : self.face
        }
-db.drop_all()
-db.create_all()
-db.session.commit()
+
 print("create")
 @app.route("/")
 def index():
