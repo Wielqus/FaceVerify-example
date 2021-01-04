@@ -10,7 +10,10 @@ from flask import (
     render_template
 )
 from flask_sqlalchemy import SQLAlchemy
+from face_verify import face_verify
 app = Flask(__name__)
+app.config.from_object("config.Config")
+db = SQLAlchemy(app)
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
