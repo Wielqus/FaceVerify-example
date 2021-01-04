@@ -14,9 +14,7 @@ from face_verify import face_verify
 app = Flask(__name__)
 app.config.from_object("config.Config")
 db = SQLAlchemy(app)
-db.drop_all()
-db.create_all()
-db.session.commit()
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -36,7 +34,10 @@ class User(db.Model):
            'username' : self.username,
            "face" : self.face
        }
-
+db.drop_all()
+db.create_all()
+db.session.commit()
+print("create")
 @app.route("/")
 def index():
     return render_template('index.html')
