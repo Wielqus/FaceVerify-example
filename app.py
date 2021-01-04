@@ -14,6 +14,9 @@ from face_verify import face_verify
 app = Flask(__name__)
 app.config.from_object("config.Config")
 db = SQLAlchemy(app)
+db.drop_all()
+db.create_all()
+db.session.commit()
 
 class User(db.Model):
     __tablename__ = "users"
@@ -76,6 +79,5 @@ def login():
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
     app.run(threaded=True, port=5000)
-    db.drop_all()
-    db.create_all()
-    db.session.commit()
+    
+    
