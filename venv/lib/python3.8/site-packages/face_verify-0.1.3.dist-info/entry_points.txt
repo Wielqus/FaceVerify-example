@@ -1,0 +1,3 @@
+[console_scripts]
+face_verify = face_verify.cli:main
+
