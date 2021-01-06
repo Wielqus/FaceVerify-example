@@ -16,6 +16,13 @@ app = Flask(__name__)
 app.config.from_object("config.Config")
 db = SQLAlchemy(app)
 
+@app.before_first_request
+def before_first_request():
+    db.drop_all()
+    db.create_all()
+    db.session.commit()
+    print("create")
+    
 class User(db.Model):
     __tablename__ = "users"
 
@@ -59,6 +66,7 @@ def registerFace():
             print(e)
             return render_template('register.html', error = "Something goes wrong. Try again.")
     return render_template('register.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -81,8 +89,5 @@ def login():
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
-    db.drop_all()
-    db.create_all()
-    db.session.commit()
     app.run(threaded=True, port=5000)
     
