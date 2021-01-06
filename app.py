@@ -18,6 +18,7 @@ class MyFlaskApp(Flask):
         db.drop_all()
         db.create_all()
         db.session.commit()
+        print("create")
     super(MyFlaskApp, self).run(host=host, port=port, debug=debug, load_dotenv=load_dotenv, **options)
 
 app = MyFlaskApp(__name__)
@@ -43,7 +44,7 @@ class User(db.Model):
            "face" : self.face
        }
 
-print("create")
+
 @app.route("/")
 def index():
     return render_template('index.html')
