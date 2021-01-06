@@ -14,8 +14,7 @@ from face_verify import (register, verify)
 
 class MyFlaskApp(Flask):
   def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
-    if not self.debug or os.getenv('WERKZEUG_RUN_MAIN') == 'true':
-      with self.app_context():
+    with self.app_context():
         db.drop_all()
         db.create_all()
         db.session.commit()
