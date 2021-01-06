@@ -12,6 +12,9 @@ from flask import (
 from flask_sqlalchemy import SQLAlchemy
 from face_verify import (register, verify)
 
+app = Flask(__name__)
+app.config.from_object("config.Config")
+db = SQLAlchemy(app)
 
 class User(db.Model):
     __tablename__ = "users"
@@ -31,20 +34,6 @@ class User(db.Model):
            'username' : self.username,
            "face" : self.face
        }
-
-class MyFlaskApp(Flask):
-  def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
-    with self.app_context():
-        db.drop_all()
-        db.create_all()
-        db.session.commit()
-        print("create")
-    super(MyFlaskApp, self).run(host=host, port=port, debug=debug, load_dotenv=load_dotenv, **options)
-
-app = MyFlaskApp(__name__)
-app.config.from_object("config.Config")
-db = SQLAlchemy(app)
-
 
 @app.route("/")
 def index():
@@ -92,5 +81,8 @@ def login():
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
+    db.drop_all()
+    db.create_all()
+    db.session.commit()
     app.run(threaded=True, port=5000)
     
