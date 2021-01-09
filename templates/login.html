@@ -76,7 +76,7 @@
           if(nameInput.value !== ""){
             firstSection.style.display = "none"
             secondSection.style.display = "flex"
-            FaceVerify.FaceVerify.init(container, {}, (face) => {
+            FaceVerify.FaceVerify.init(container, (face) => {
                 container.style.display = "none"
                 successAlert.style.display = "block"
                 faceInput.value = face
